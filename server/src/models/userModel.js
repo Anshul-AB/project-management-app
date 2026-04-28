@@ -2,7 +2,6 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
-    // --- BASIC INFO ---
     name: {
       type: String,
       required: true,
@@ -23,13 +22,11 @@ const userSchema = new mongoose.Schema(
       sparse: true,
     },
 
-    // --- AUTH ---
     password: {
       type: String,
       minlength: 6,
     },
 
-    // --- OTP SYSTEM ---
     otp: {
       type: String,
     },

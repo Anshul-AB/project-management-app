@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import bcryptjs from "bcryptjs";
+import jwt from 'jsonwebtoken'
 
 export const signUp = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ export const signUp = async (req, res) => {
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    // OTP generation
+    // generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
@@ -30,41 +31,38 @@ export const signUp = async (req, res) => {
       isVerified: false,
     });
 
-    // TODO: send OTP via email (nodemailer)
-    console.log("OTP:", otp); // temp for testing
+    // TODO: print OTP (replace with email/phone later)
+    console.log("OTP:", otp);
 
-    res.status(201).json({
-      message: "User created. Verify OTP.",
-      userId: newUser._id,
+    return res.status(201).json({
+      message: "User created. Verify OTP",
+      userId: newUser._id.toString(),
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Signup error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
-
 export const verifyOTP = async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { userId, otp } = req.body;
 
-    if (!email || !otp) {
-      return res.status(400).json({ message: "Email and OTP required" });
+    if (!userId || !otp) {
+      return res.status(400).json({ message: "userId and OTP required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // check OTP
     if (user.otp !== otp) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
 
-    // check expiry
     if (user.otpExpiry < new Date()) {
       return res.status(400).json({ message: "OTP expired" });
     }
@@ -76,14 +74,14 @@ export const verifyOTP = async (req, res) => {
 
     await user.save();
 
-    // generate token
+    // generate JWT
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "10d" }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "OTP verified",
       token,
       user: {
@@ -94,7 +92,61 @@ export const verifyOTP = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Verify OTP error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
+    const findUser = await User.findOne({ email });
+    if (!findUser) {
+      return res.status(404).json({
+        message: "User does not exist. Signup first",
+      });
+    }
+
+    if (!findUser.isVerified) {
+      return res.status(403).json({
+        message: "Please verify OTP first",
+      });
+    }
+
+    const isPasswordValid = await bcryptjs.compare(
+      password,
+      findUser.password
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: findUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "10d" }
+    );
+
+    return res.status(200).json({
+      message: "User logged in successfully",
+      token,
+      user: {
+        id: findUser._id,
+        name: findUser.name,
+        email: findUser.email,
+      },
+    });
+
+  } catch (error) {
+    console.error("Error logging in:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
