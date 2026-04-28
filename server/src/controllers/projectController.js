@@ -45,11 +45,60 @@ export const getProjects = async (req, res) => {
   }
 }
 
-export const deleteProject = async(req, res)=>{
-    try {
-        const project = await Project.findByIdAndDelete({ _id: req.params.id,
-  userId: req.user.id})
-    } catch (error) {
-        
+export const deleteProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedProject = await Project.findOneAndDelete({
+      _id: id,
+      userId: req.user.id,
+    });
+
+    if (!deletedProject) {
+      return res.status(404).json({
+        message: "Project not found or not authorized",
+      });
     }
-}
+
+    return res.status(200).json({
+      message: "Project deleted successfully",
+      project: deletedProject,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// export const updateProject = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     let { title, description } = req.body || {};
+
+//     const project = await Project.findOne({
+//       _id: id,
+//       userId: req.user.id,
+//     });
+
+//     if (!project) {
+//       return res.status(404).json({
+//         message: "Project not found or not authorized",
+//       });
+//     }
+
+//     if (title) project.title = title.trim();
+//     if (description) project.description = description.trim();
+
+//     await project.save();
+
+//     return res.status(200).json({
+//       project,
+//       message: "Project updated successfully",
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: error.message,
+//     });
+//   }
+// };
