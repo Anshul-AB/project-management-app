@@ -1,9 +1,9 @@
 import { View, Text } from "react-native";
 
-export default function Index() {
+export default function Projects() {
   return (
     <View>
-      <Text>AUTH SCREEN</Text>
+      <Text>PROJECTS SCREEN</Text>
     </View>
   );
 }

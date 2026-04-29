@@ -76,7 +76,7 @@ export const verifyOTP = async (req, res) => {
 
     // generate JWT
     const token = jwt.sign(
-      { userId: user._id },
+      { id: user._id },
       process.env.JWT_SECRET,
       { expiresIn: "10d" }
     );
@@ -130,7 +130,7 @@ export const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: findUser._id },
+      { id: findUser._id },
       process.env.JWT_SECRET,
       { expiresIn: "10d" }
     );
