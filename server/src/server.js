@@ -1,20 +1,30 @@
-import app from "./index.js"
+import app from "./index.js";
 import db from "./config/db.js";
 import dotenv from "dotenv";
-dotenv.config()
 
-const PORT = process.env.PORT || 5000
+dotenv.config();
 
-console.log("mongodb_str:", process.env.MONGODB_STR ? "FOUND" : "MISSING");
-console.log("JWT_SECRET:", process.env.JWT_SECRET ? "FOUND" : "MISSING");
-console.log("PORT:", process.env.PORT);
+const PORT = process.env.PORT || 5000;
 
-db().then(()=>{
-  console.log("MongoDB connected")
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.get("/", (req, res) => {
+  res.send("API is running. Use /api routes to interact with the backend.");
+});
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Server is up and running",
   });
+});
 
-}).catch((error)=>{
-  console.error("DB connection failed:", error);
-})
+db()
+  .then(() => {
+    console.log("MongoDB connected");
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("DB connection failed:", error);
+  });
