@@ -5,7 +5,7 @@ dotenv.config()
 
 const PORT = process.env.PORT || 5000
 
-console.log("MONGO_URI:", process.env.MONGO_URI ? "FOUND" : "MISSING");
+console.log("mongodb_str:", process.env.MONGODB_STR ? "FOUND" : "MISSING");
 console.log("JWT_SECRET:", process.env.JWT_SECRET ? "FOUND" : "MISSING");
 console.log("PORT:", process.env.PORT);
 
