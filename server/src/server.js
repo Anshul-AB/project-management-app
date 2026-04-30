@@ -32,7 +32,7 @@
 import express from "express";
 
 console.log("ENV CHECK:");
-console.log("MONGO_URI:", process.env.MONGO_URI);
+console.log("MONGODB_STR:", process.env.MONGODB_STR);
 console.log("JWT_SECRET:", process.env.JWT_SECRET);
 console.log("PORT:", process.env.PORT);
 
