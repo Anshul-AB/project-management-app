@@ -31,7 +31,7 @@ const handleSignup = async () => {
     Alert.alert("Success", response.message);
 
     router.push({
-      pathname: "/(auth)/otp",
+      pathname: "/(tabs)/OtpScreen",
       params: {
         userId: response.userId,
       },
@@ -104,7 +104,7 @@ const handleSignup = async () => {
       </TouchableOpacity>
 
       <TouchableOpacity
-        onPress={() => navigation.navigate("Login")}
+        onPress={() => router.replace("Login")}
       >
         <Text style={globalStyles.linkText}>
           Already have an account?
